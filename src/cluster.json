@@ -1,0 +1,166 @@
+{
+  "cluster": {
+    "name": "minikube-aws",
+    "installed": true,
+    "cloud": {
+      "provider": [
+        {
+          "id": "aws",
+          "name": "AWS",
+          "regions": [
+            {
+              "id": "eu-central-1",
+              "name": "eu-central-1"
+            },
+            {
+              "id": "eu-central-2",
+              "name": "eu-central-2"
+            },
+            {
+              "id": "eu-central-3",
+              "name": "eu-central-3"
+            }
+          ]
+        },
+        {
+          "id": "digitalocean",
+          "name": "DigitalOcean",
+          "regions": [
+            {
+              "id": "do-1",
+              "name": "DO-1"
+            },
+            {
+              "id": "do-2",
+              "name": "DO-2"
+            },
+            {
+              "id": "do-3",
+              "name": "DO-3"
+            }
+          ]
+        },
+        {
+          "id": "googlecloud",
+          "name": "GoogleCloud",
+          "regions": [
+            {
+              "id": "21",
+              "name": "eu21"
+            },
+            {
+              "id": "32l-2",
+              "name": "eu32"
+            },
+            {
+              "id": "e12ral-3",
+              "name": "eu43"
+            }
+          ]
+        }
+      ],
+      "region": "eu-central-1",
+      "vpc": "default",
+      "domain": "shalb.net"
+    },
+    "provisioner": {
+      "type": [
+        {
+          "id": "minikube",
+          "name": "Minikube",
+          "instanceType": [
+            {
+              "id": "m5-large",
+              "name": "m5.large"
+            }
+          ]
+        },
+        {
+          "id": "eks",
+          "name": "EKS",
+          "instanceType": [
+          ]
+        },
+        {
+          "id": "clusterapi",
+          "name": "ClusterApi",
+          "instanceType": [
+            {
+              "id": "n10-large",
+              "name": "n10.large"
+            }
+          ]
+        }
+      ],
+      "components": [
+        {
+          "id": "ingresscontroller",
+          "name": "Ingress Controller"
+        },
+        {
+          "id": "kubernetesdashboard",
+          "name": "Kubernetes Dashboard"
+        },
+        {
+          "id": "loggingwithelk",
+          "name": "Logging with ELK"
+        },
+        {
+          "id": "prometheus-grafana",
+          "name": "Monitoring: Prometheus & Grafana"
+        },
+        {
+          "id": "argocs",
+          "name": "ArgoCD"
+        },
+        {
+          "id": "letsencrypt",
+          "name": "Cert-Manager LetsEncrypt"
+        }
+      ]
+    }
+  },
+  "envs": [
+    {
+      "namespace": "observability",
+      "apps": [
+        "elk-logging",
+        "prometheus-operator",
+        "grafana"
+      ]
+    },
+    {
+      "namespace": "stage",
+      "apps": [
+        "nginx-ingress",
+        "micro-services"
+      ]
+    },
+    {
+      "namespace": "github-runner",
+      "apps": [
+        "github-runner"
+      ]
+    }
+  ],
+  "apps": [
+    {
+      "name": "elk-logging",
+      "helmfile": {
+        "path": "git://github.shalb.com/cluster.dev/helmfile-logging.git?v=12",
+        "version": "0.11.04"
+      }
+    },
+    {
+      "name": "prometheus-operator",
+      "helm": {
+        "repo": "stable/prometheus-operator",
+        "version": "0.1.0"
+      }
+    },
+    {
+      "name": "micro-services",
+      "execScript": "kustomize -k minikube/manifests/company-serives | kubectl apply -f"
+    }
+  ]
+}
