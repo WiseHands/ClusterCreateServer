@@ -37,7 +37,7 @@
 /* eslint-disable indent, no-unused-vars, no-multiple-empty-lines, max-nested-callbacks, space-before-function-paren, quotes, comma-spacing */
 'use strict';
 
-var precacheConfig = [["src/cluster-create-form.js","02e09153db6514e1642ff53fa38c8ea7"],["src/index.html","93a968a4bdf9d73d3aa829213112cc14"]];
+var precacheConfig = [["src/cluster-create-form.js","8a302e4b0e59bb912f466ee093d02c05"],["src/index.html","93a968a4bdf9d73d3aa829213112cc14"]];
 var cacheName = 'sw-precache-v3--' + (self.registration ? self.registration.scope : '');
 
 
@@ -229,7 +229,7 @@ self.addEventListener('fetch', function (event) {
 
     // If shouldRespond is still false, check to see if this is a navigation
     // request, and if so, whether the URL matches navigateFallbackWhitelist.
-    var navigateFallback = 'src/index.html';
+    var navigateFallback = 'src\index.html';
     if (!shouldRespond &&
         navigateFallback &&
         (event.request.mode === 'navigate') &&

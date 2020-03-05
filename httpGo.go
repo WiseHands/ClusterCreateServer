@@ -41,9 +41,7 @@ func main() {
 	http.Handle("/", http.StripPrefix("/", fs))
 
 	//HTTP server endpoints
-	http.HandleFunc("/api", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "Hello World!")
-	})
+	http.HandleFunc("/cluster", responseHandler)
 	http.HandleFunc("/success", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "./index.html")
 		//fmt.Fprint(w, "Success Page")

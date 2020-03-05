@@ -1,6 +1,6 @@
 {
-  "entrypoint": "src/index.html",
-  "shell": "src/cluster-create-form.js",
+  "entrypoint": "src\\index.html",
+  "shell": "src\\cluster-create-form.js",
   "fragments": [],
   "sources": [
     "package.json",
