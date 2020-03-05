@@ -29179,7 +29179,7 @@ class ClusterCreateForm extends PolymerElement {
             </style>
 
 <paper-card heading="Add cluster">
-  <paper-input always-float-label label="Name"></paper-input>
+  <paper-input id="clusterName" always-float-label label="Name"></paper-input>
   <cluster-provider configuration=[[configuration]]></cluster-provider>
   <div class="border"></div>
 
@@ -29240,9 +29240,22 @@ class ClusterCreateForm extends PolymerElement {
   }
 
   sendClusterData() {
+    const clusterName = this.$.clusterName.value || "";
     const body = {
-      a: 'sdasd',
-      b: 5
+      "cluster": {
+        "name": clusterName,
+        "installed": true,
+        "cloud": {
+          "provider": "aws",
+          "region": "eu-central-1",
+          "vpc": "default",
+          "domain": "shalb.net"
+        },
+        "provisioner": {
+          "type": "minikube",
+          "instanceType": "m5.large"
+        }
+      }
     };
     const createCluster = this.$.createCluster;
     createCluster.method = "POST";
