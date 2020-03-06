@@ -28903,6 +28903,9 @@ class ClusterProvider extends PolymerElement {
                 paper-dropdown-menu {
                     margin-left: 2em;
                 }
+                paper-item:hover {
+                    cursor: pointer;
+                }
             </style>
 
   <label id="cloud">Cloud</label>
@@ -28993,6 +28996,9 @@ class ProvisionerConfigurator extends PolymerElement {
                 paper-dropdown-menu {
                     margin-left: 2em;
                 }
+                paper-item:hover {
+                    cursor: pointer;
+                }
             </style>
   <label id="provisioner">Provisioner</label>
   <paper-radio-group id="instanceTypeList" aria-labelledby="provisioner">
@@ -29036,7 +29042,13 @@ class ProvisionerConfigurator extends PolymerElement {
     let selectedType;
     this.configuration.cluster.provisioner.type.forEach(item => {
       if (item.id === selectedTypeId) {
+        //provisioner-selected item
         selectedType = item;
+        this.dispatchEvent(new CustomEvent('provisioner-selected', {
+          detail: item,
+          bubbles: true,
+          composed: true
+        }));
       }
     });
     this.selectedType = selectedType;
@@ -29266,7 +29278,9 @@ class ClusterCreateForm extends PolymerElement {
 
   _onCreateClusterResponse(event, response) {
     console.log(response, response.value);
-    this.$.responseYaml.innerText = response.value;
+    let escapedText = response.value;
+    escapedText = escapedText.replace(/ /g, '&nbsp;').replace(/(?:\r\n|\r|\n)/g, '<br>');
+    this.$.responseYaml.innerHTML = escapedText;
   }
 
 }

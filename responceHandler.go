@@ -8,7 +8,13 @@ import (
 	"net/http"
 )
 
+//CORS enabled
+func enableCors(w *http.ResponseWriter) {
+	(*w).Header().Set("Access-Control-Allow-Origin", "*")
+}
+
 func responseHandler(w http.ResponseWriter, r *http.Request) {
+	enableCors(&w)
 	switch r.Method {
 	case "POST":
 		reqBody, err := ioutil.ReadAll(r.Body)
