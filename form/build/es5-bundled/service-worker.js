@@ -37,7 +37,7 @@
 /* eslint-disable indent, no-unused-vars, no-multiple-empty-lines, max-nested-callbacks, space-before-function-paren, quotes, comma-spacing */
 'use strict';
 
-var precacheConfig = [["src/cluster-create-form.js","89aef292b3f78db424a9f90dd9319e8d"],["src/index.html","93a968a4bdf9d73d3aa829213112cc14"]];
+var precacheConfig = [["src/cluster-create-form.js","efe6ebc1aa7652f7f2e7ffd5a980f30e"],["src/index.html","93a968a4bdf9d73d3aa829213112cc14"]];
 var cacheName = 'sw-precache-v3--' + (self.registration ? self.registration.scope : '');
 
 
