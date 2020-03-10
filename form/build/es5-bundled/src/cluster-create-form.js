@@ -28918,7 +28918,7 @@ class ClusterProvider extends PolymerElement {
 
   <paper-dropdown-menu id="regionDropdown" hidden$="[[!_areRegionsSet(selectedProvider)]]" label="Region">
 
-    <paper-listbox id="regionListbox" slot="dropdown-content" class="dropdown-content">
+    <paper-listbox selected="{{selectedRegion}}" id="regionListbox" slot="dropdown-content" class="dropdown-content">
       <template is="dom-repeat" items="[[selectedProvider.regions]]">
         <paper-item name="[[item.id]]">[[item.name]]</paper-item>
       </template>
@@ -28935,6 +28935,10 @@ class ClusterProvider extends PolymerElement {
       },
       selectedProvider: {
         type: Object
+      },
+      selectedRegion: {
+        type: Object,
+        observer: '_regionObserver'
       }
     };
   }
@@ -28945,6 +28949,17 @@ class ClusterProvider extends PolymerElement {
     this.addEventListener('paper-radio-group-changed', this.providerSelected);
   }
 
+  _regionObserver(val) {
+    console.log('_regionObserver', val);
+    if (val === 999) return;
+    let region = this.selectedProvider.regions[val];
+    this.dispatchEvent(new CustomEvent('cluster-region-selected', {
+      detail: region,
+      bubbles: true,
+      composed: true
+    }));
+  }
+
   providerSelected() {
     this.$.regionDropdown.value = '';
     this.$.regionListbox.selected = 999;
@@ -28953,6 +28968,11 @@ class ClusterProvider extends PolymerElement {
     this.configuration.cluster.cloud.providerList.forEach(item => {
       if (item.id === selectedProviderId) {
         selectedProvider = item;
+        this.dispatchEvent(new CustomEvent('cluster-provider-selected', {
+          detail: item,
+          bubbles: true,
+          composed: true
+        }));
       }
     });
     this.selectedProvider = selectedProvider;
@@ -29052,7 +29072,7 @@ class ProvisionerConfigurator extends PolymerElement {
       }
     });
     this.selectedType = selectedType;
-    console.log('typeSelected', this.selectedType);
+    console.log('provisioner type selected', this.selectedType);
   }
 
   _areTypesSet(type) {
@@ -29069,6 +29089,10 @@ class ClusterCreateForm extends PolymerElement {
   static get template() {
     // language=HTML
     return html`
+            <link rel="stylesheet"
+                  href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/styles/default.min.css">
+            <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/highlight.min.js"></script>
+            <script>hljs.initHighlightingOnLoad();</script>
             <style>
                 :host {
                     display: block;
@@ -29212,8 +29236,8 @@ class ClusterCreateForm extends PolymerElement {
   <div class="card-actions">
     <paper-button on-click="sendClusterData">Create Cluster</paper-button>
   </div>
-    
-    <div id="responseYaml"></div>
+
+    <pre><code class="html" id="responseYaml">...</code></pre>
 </paper-card>
 
             <iron-ajax id="ajax" handle-as="json" on-last-response-changed="_onLastResponseChanged"></iron-ajax>
@@ -29235,8 +29259,26 @@ class ClusterCreateForm extends PolymerElement {
 
   ready() {
     super.ready();
+    this.addEventListener('cluster-provider-selected', this.onClusterProviderSelected);
+    this.addEventListener('provisioner-selected', this.onProvisionerSelected);
+    this.addEventListener('cluster-region-selected', this.onClusterRegionSelected);
 
     this._generateRequest('GET', this.url);
+  }
+
+  onClusterRegionSelected(event) {
+    console.log('onClusterRegionSelected: ', event, event.detail);
+    this.selectedClusterRegionSelected = event.detail.id;
+  }
+
+  onClusterProviderSelected(event) {
+    console.log('onClusterProviderSelected: ', event, event.detail);
+    this.selectedClusterProviderSelected = event.detail.id;
+  }
+
+  onProvisionerSelected(event) {
+    console.log('onProvisionerSelected: ', event, event.detail);
+    this.selectedProvisionerId = event.detail.id;
   }
 
   _generateRequest(method, url) {
@@ -29254,18 +29296,18 @@ class ClusterCreateForm extends PolymerElement {
   sendClusterData() {
     const clusterName = this.$.clusterName.value || "";
     const body = {
-      "cluster": {
-        "name": clusterName,
-        "installed": true,
-        "cloud": {
-          "provider": "aws",
-          "region": "eu-central-1",
-          "vpc": "default",
-          "domain": "shalb.net"
+      cluster: {
+        name: clusterName,
+        installed: true,
+        cloud: {
+          provider: this.selectedClusterProviderSelected,
+          region: this.selectedClusterRegionSelected,
+          vpc: "default",
+          domain: "shalb.net"
         },
-        "provisioner": {
-          "type": "minikube",
-          "instanceType": "m5.large"
+        provisioner: {
+          type: this.selectedProvisionerId,
+          instanceType: "m5.large"
         }
       }
     };
@@ -29278,9 +29320,9 @@ class ClusterCreateForm extends PolymerElement {
 
   _onCreateClusterResponse(event, response) {
     console.log(response, response.value);
-    let escapedText = response.value;
-    escapedText = escapedText.replace(/ /g, '&nbsp;').replace(/(?:\r\n|\r|\n)/g, '<br>');
-    this.$.responseYaml.innerHTML = escapedText;
+    let text = response.value;
+    text = text.replace(/ /g, '&nbsp;').replace(/(?:\r\n|\r|\n)/g, '<br>');
+    this.$.responseYaml.innerHTML = text;
   }
 
 }
