@@ -29028,7 +29028,7 @@ class ProvisionerConfigurator extends PolymerElement {
   </paper-radio-group>
 
   <paper-dropdown-menu id="provisionerTypeDropdown" hidden$="[[!_areTypesSet(selectedType)]]" label="Instance Type">
-    <paper-listbox id="typeListbox" slot="dropdown-content" class="dropdown-content">
+    <paper-listbox selected="{{selectedInstanceType}}" id="typeListbox" slot="dropdown-content" class="dropdown-content">
       <template is="dom-repeat" items="[[selectedType.instanceTypeList]]">
         <paper-item name="[[item.id]]">[[item.name]]</paper-item>
       </template>
@@ -29045,6 +29045,10 @@ class ProvisionerConfigurator extends PolymerElement {
       },
       selectedType: {
         type: Object
+      },
+      selectedInstanceType: {
+        type: Object,
+        observer: '_provisionerTypeObserver'
       }
     };
   }
@@ -29053,6 +29057,17 @@ class ProvisionerConfigurator extends PolymerElement {
     super.ready();
     this.selectedType = {};
     this.addEventListener('paper-radio-group-changed', this.typeSelected);
+  }
+
+  _provisionerTypeObserver(val) {
+    console.log('_provisionerTypeObserver', val);
+    if (val === 999) return;
+    let InstanceType = this.selectedType.instanceTypeList[val];
+    this.dispatchEvent(new CustomEvent('instance-type-selected', {
+      detail: InstanceType,
+      bubbles: true,
+      composed: true
+    }));
   }
 
   typeSelected() {
@@ -29088,11 +29103,7 @@ window.customElements.define('provisioner-configurator', ProvisionerConfigurator
 class ClusterCreateForm extends PolymerElement {
   static get template() {
     // language=HTML
-    return html`
-            <link rel="stylesheet"
-                  href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/styles/default.min.css">
-            <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/highlight.min.js"></script>
-            <script>hljs.initHighlightingOnLoad();</script>
+    return html`            
             <style>
                 :host {
                     display: block;
@@ -29212,6 +29223,10 @@ class ClusterCreateForm extends PolymerElement {
                 paper-dropdown-menu[hidden] {
                     visibility: hidden;
                 }
+                
+                pre {
+                    padding: 5px 16px;
+                }
             </style>
 
 <paper-card heading="Add cluster">
@@ -29237,7 +29252,7 @@ class ClusterCreateForm extends PolymerElement {
     <paper-button on-click="sendClusterData">Create Cluster</paper-button>
   </div>
 
-    <pre><code class="html" id="responseYaml">...</code></pre>
+    <pre><code class="yaml" id="responseYaml">...</code></pre>
 </paper-card>
 
             <iron-ajax id="ajax" handle-as="json" on-last-response-changed="_onLastResponseChanged"></iron-ajax>
@@ -29260,8 +29275,9 @@ class ClusterCreateForm extends PolymerElement {
   ready() {
     super.ready();
     this.addEventListener('cluster-provider-selected', this.onClusterProviderSelected);
-    this.addEventListener('provisioner-selected', this.onProvisionerSelected);
     this.addEventListener('cluster-region-selected', this.onClusterRegionSelected);
+    this.addEventListener('provisioner-selected', this.onProvisionerSelected);
+    this.addEventListener('instance-type-selected', this.onProvisionerTypeSelected);
 
     this._generateRequest('GET', this.url);
   }
@@ -29279,6 +29295,11 @@ class ClusterCreateForm extends PolymerElement {
   onProvisionerSelected(event) {
     console.log('onProvisionerSelected: ', event, event.detail);
     this.selectedProvisionerId = event.detail.id;
+  }
+
+  onProvisionerTypeSelected(event) {
+    console.log('onProvisionerTypeSelected: ', event, event.detail);
+    this.selectedProvisionerTypeSelected = event.detail.id;
   }
 
   _generateRequest(method, url) {
@@ -29307,7 +29328,7 @@ class ClusterCreateForm extends PolymerElement {
         },
         provisioner: {
           type: this.selectedProvisionerId,
-          instanceType: "m5.large"
+          instanceType: this.selectedProvisionerTypeSelected
         }
       }
     };
