@@ -28910,7 +28910,7 @@ class ClusterProvider extends PolymerElement {
 
   <label id="cloud">Cloud</label>
 
-    <paper-radio-group id="cloudProvider" aria-labelledby="cloud">
+    <paper-radio-group id="cloudProvider" selected="[[selectedProviderId]]" aria-labelledby="cloud">
       <template is="dom-repeat" items="[[configuration.cluster.cloud.providerList]]">
         <paper-radio-button name="[[item.id]]">[[item.name]]</paper-radio-button>
       </template>
@@ -28941,6 +28941,19 @@ class ClusterProvider extends PolymerElement {
         observer: '_regionObserver'
       }
     };
+  }
+
+  static get observers() {
+    return ['providerChanged(configuration.cluster.cloud.providerList)'];
+  }
+
+  providerChanged(list) {
+    console.log('list', list);
+    this.configuration.cluster.cloud.providerList.forEach(item => {
+      if (item.default) {
+        this.selectedProviderId = item.id;
+      }
+    });
   }
 
   ready() {
@@ -29021,7 +29034,7 @@ class ProvisionerConfigurator extends PolymerElement {
                 }
             </style>
   <label id="provisioner">Provisioner</label>
-  <paper-radio-group id="instanceTypeList" aria-labelledby="provisioner">
+  <paper-radio-group id="instanceTypeList" selected="[[selectedProvisionerId]]" aria-labelledby="provisioner">
     <template is="dom-repeat" items="[[configuration.cluster.provisioner.type]]">
       <paper-radio-button name="[[item.id]]">[[item.name]]</paper-radio-button>
     </template>
@@ -29051,6 +29064,19 @@ class ProvisionerConfigurator extends PolymerElement {
         observer: '_provisionerTypeObserver'
       }
     };
+  }
+
+  static get observers() {
+    return ['provisionerChanged(configuration.cluster.provisioner.type)'];
+  }
+
+  provisionerChanged(list) {
+    console.log('list', list);
+    this.configuration.cluster.provisioner.type.forEach(item => {
+      if (item.default) {
+        this.selectedProvisionerId = item.id;
+      }
+    });
   }
 
   ready() {
@@ -29132,7 +29158,7 @@ class VirtualPrivateCloud extends PolymerElement {
                 }
             </style>
   <label id="vpc">Virtual Private Cloud</label>
-  <paper-radio-group id="vpcList" aria-labelledby="vpc">
+  <paper-radio-group id="vpcList" selected="[[selectedVpcId]]" aria-labelledby="vpc">
     <template is="dom-repeat" items="[[configuration.cluster.vpc.state]]">
       <paper-radio-button name="[[item.id]]">[[item.name]]</paper-radio-button>
     </template>
@@ -29152,6 +29178,19 @@ class VirtualPrivateCloud extends PolymerElement {
         observer: '_VpcStateObserver'
       }
     };
+  }
+
+  static get observers() {
+    return ['vpcChanged(configuration.cluster.vpc.state)'];
+  }
+
+  vpcChanged(list) {
+    console.log('list', list);
+    this.configuration.cluster.vpc.state.forEach(item => {
+      if (item.default) {
+        this.selectedVpcId = item.id;
+      }
+    });
   }
 
   ready() {
@@ -29343,12 +29382,9 @@ class ClusterCreateForm extends PolymerElement {
 
     <virtual-private-cloud configuration=[[configuration]]></virtual-private-cloud>
     
-    
   <div class="border"></div>
 
   <provisioner-configurator configuration=[[configuration]]></provisioner-configurator>
-
-
 
   <div class="border"></div>
   <label id="cloudComponents">Cluster Components</label>
