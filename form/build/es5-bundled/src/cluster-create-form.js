@@ -28945,13 +28945,6 @@ class ClusterProvider extends PolymerElement {
 
   static get observers() {
     return ['providerChanged(configuration.cluster.cloud.providerList)'];
-  } // Element class can define custom element reactions
-
-
-  connectedCallback() {
-    super.connectedCallback();
-    this.textContent = 'I\'m a custom element!';
-    console.log('my-element created!');
   }
 
   providerChanged(list) {
@@ -29083,7 +29076,11 @@ class ProvisionerConfigurator extends PolymerElement {
     this.configuration.cluster.provisioner.type.forEach(item => {
       if (item.default) {
         this.selectedProvisionerId = item.id;
+        this.selectedType = item;
       }
+    });
+    this.selectedType.instanceTypeList.forEach((instanceType, index) => {
+      if (instanceType.default) this.$.typeListbox.selected = index;
     });
   }
 
@@ -29197,6 +29194,7 @@ class VirtualPrivateCloud extends PolymerElement {
     this.configuration.cluster.vpc.state.forEach(item => {
       if (item.default) {
         this.selectedVpcId = item.id;
+        this.selectedState = item;
       }
     });
   }
