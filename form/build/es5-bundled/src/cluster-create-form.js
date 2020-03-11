@@ -29336,7 +29336,7 @@ class ClusterCreateForm extends PolymerElement {
             </style>
 
 <paper-card heading="Add cluster">
-  <paper-input id="clusterName" always-float-label label="Name"></paper-input>
+  <paper-input id="clusterName" always-float-label label="Name" value="[[configuration.cluster.name]]"></paper-input>
   <cluster-provider configuration=[[configuration]]></cluster-provider>
 
     <div class="border"></div>
@@ -29462,7 +29462,8 @@ class ClusterCreateForm extends PolymerElement {
           type: this.selectedProvisionerId,
           instanceType: this.selectedProvisionerTypeSelected
         }
-      }
+      },
+      apps: []
     };
     const createCluster = this.$.createCluster;
     createCluster.method = "POST";
