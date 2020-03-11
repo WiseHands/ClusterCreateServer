@@ -28910,7 +28910,7 @@ class ClusterProvider extends PolymerElement {
 
   <label id="cloud">Cloud</label>
 
-    <paper-radio-group id="cloudProvider" selected="[[selectedProviderId]]" aria-labelledby="cloud">
+    <paper-radio-group id="cloudProvider" selected="{{selectedProviderId}}" aria-labelledby="cloud">
       <template is="dom-repeat" items="[[configuration.cluster.cloud.providerList]]">
         <paper-radio-button name="[[item.id]]">[[item.name]]</paper-radio-button>
       </template>
@@ -28945,6 +28945,13 @@ class ClusterProvider extends PolymerElement {
 
   static get observers() {
     return ['providerChanged(configuration.cluster.cloud.providerList)'];
+  } // Element class can define custom element reactions
+
+
+  connectedCallback() {
+    super.connectedCallback();
+    this.textContent = 'I\'m a custom element!';
+    console.log('my-element created!');
   }
 
   providerChanged(list) {
@@ -28952,22 +28959,23 @@ class ClusterProvider extends PolymerElement {
     this.configuration.cluster.cloud.providerList.forEach(item => {
       if (item.default) {
         this.selectedProviderId = item.id;
+        this.selectedProvider = item;
       }
+    });
+    this.selectedProvider.regions.forEach((region, index) => {
+      if (region.default) this.$.regionListbox.selected = index;
     });
   }
 
   ready() {
     super.ready();
-    this.selectedProvider = {};
     this.addEventListener('paper-radio-group-changed', this.providerSelected);
   }
 
   _regionObserver(val) {
-    console.log('_regionObserver', val);
     if (val === 999) return;
-    let region = this.selectedProvider.regions[val];
     this.dispatchEvent(new CustomEvent('cluster-region-selected', {
-      detail: region,
+      detail: this.selectedRegion,
       bubbles: true,
       composed: true
     }));
