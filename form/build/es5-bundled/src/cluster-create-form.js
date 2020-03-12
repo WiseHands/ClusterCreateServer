@@ -29279,6 +29279,112 @@ class VirtualPrivateCloud extends PolymerElement {
 
 window.customElements.define('virtual-private-cloud', VirtualPrivateCloud);
 
+class ComponentsSelector extends PolymerElement {
+  static get template() {
+    // language=HTML
+    return html`
+            <style>
+                label {
+                    padding-left: 1em;
+                }
+                paper-checkbox {
+                    margin: 0.5em;
+                }
+            </style>
+  <paper-checkbox id="componentsId" name="[[item.id]]" on-change="onComponentSelect">[[item.name]]</paper-checkbox>
+        `;
+  }
+
+  onComponentSelect() {
+    let clusterComponents = this.$.componentsId.checked;
+    this.dispatchEvent(new CustomEvent('component-id-selected', {
+      detail: clusterComponents,
+      bubbles: true,
+      composed: true
+    }));
+  } /*
+        static get properties() {
+            return {
+                configuration: {
+                  type: Object,
+                },
+                selectedState: {
+                    type: Object,
+                    observer: '_VpcStateObserver'
+                }
+            };
+        }
+    
+        static get observers() {
+            return [
+                'vpcChanged(configuration.cluster.vpc.state)'
+            ]
+        }
+    
+        vpcChanged(list) {
+            console.log('list', list);
+    
+            this.configuration.cluster.vpc.state.forEach(
+                item => {
+                    if(item.default) {
+                        this.selectedVpcId = item.id;
+                        this.selectedVpcIdText = item.vpcId;
+                        this.selectedState = item;
+                    }
+                }
+            );
+    
+        }
+    
+    
+        _VpcStateObserver() {
+            let vpcType = this.selectedState;
+            this.dispatchEvent(new CustomEvent('vpc-selected',
+                {
+                    detail: vpcType,
+                    bubbles: true,
+                    composed: true
+                }
+            ));
+        }
+    
+        vpcSelected() {
+            const selectedStateId = this.$.vpcList.selected;
+            let selectedState;
+            this.configuration.cluster.vpc.state.forEach(
+                item => {
+                    if(item.id === selectedStateId) {
+                        //provisioner-selected item
+    
+                        selectedState = item;
+                        this.dispatchEvent(new CustomEvent('vpc-selected',
+                                {
+                                    detail: item,
+                                    bubbles: true,
+                                    composed: true
+                                }
+                            ));
+                    }
+                }
+    
+            );
+    
+            this.selectedState = selectedState;
+            console.log('vpc state selected', this.selectedState);
+    
+        }
+    
+        _areStateSet(type) {
+            const areSet = !!type && type.id === "use-existing";
+            console.log('are set', areSet, type);
+            return areSet
+        }
+    */
+
+}
+
+window.customElements.define('components-selector', ComponentsSelector);
+
 class ClusterCreateForm extends PolymerElement {
   static get template() {
     // language=HTML
@@ -29343,9 +29449,6 @@ class ClusterCreateForm extends PolymerElement {
 
                 label {
                     padding-left: 1em;
-                }
-                paper-checkbox {
-                    margin: 0.5em;
                 }
 
                 .card-actions {
@@ -29424,7 +29527,7 @@ class ClusterCreateForm extends PolymerElement {
   <label id="cloudComponents">Cluster Components</label>
   <div class="checkbox-container">
     <template is="dom-repeat" items="[[configuration.cluster.provisioner.components]]">
-      <paper-checkbox name="[[item.id]]">[[item.name]]</paper-checkbox>
+        <components-selector item="[[item]]"></components-selector>
     </template>
   </div>
   <div class="card-content">
@@ -29464,6 +29567,7 @@ class ClusterCreateForm extends PolymerElement {
     this.addEventListener('instance-type-selected', this.onProvisionerTypeSelected);
     this.addEventListener('vpc-selected', this.onVpcSelected);
     this.addEventListener('vpc-id-entered', this.onVpcIdEntered);
+    this.addEventListener('component-id-selected', this.onClusterComponentsChecked);
 
     this._generateRequest('GET', this.url);
   }
@@ -29496,6 +29600,11 @@ class ClusterCreateForm extends PolymerElement {
   onVpcIdEntered(event) {
     console.log('onVpcIdEntered', event.detail);
     this.vpcId = event.detail;
+  }
+
+  onClusterComponentsChecked(event) {
+    console.log('onClusterComponentsChecked', event.detail);
+    this.componentsId = event.detail;
   }
 
   _generateRequest(method, url) {
