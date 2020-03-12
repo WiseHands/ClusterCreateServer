@@ -29196,7 +29196,7 @@ class VirtualPrivateCloud extends PolymerElement {
     </template>
   </paper-radio-group>
 
-  <paper-input label="VPC ID" id="vpcId" on-blur="onVpcIdBlur" hide$="[[!_areStateSet(selectedState)]]"/>
+  <paper-input label="VPC ID" id="vpcId" on-blur="onVpcIdBlur" hide$="[[!_areStateSet(selectedState)]]" value="[[selectedVpcIdText]]"/>
         `;
   }
 
@@ -29221,6 +29221,7 @@ class VirtualPrivateCloud extends PolymerElement {
     this.configuration.cluster.vpc.state.forEach(item => {
       if (item.default) {
         this.selectedVpcId = item.id;
+        this.selectedVpcIdText = item.vpcId;
         this.selectedState = item;
       }
     });
@@ -29489,7 +29490,7 @@ class ClusterCreateForm extends PolymerElement {
 
   onVpcSelected(event) {
     console.log('onVpcSelected: ', event, event.detail);
-    this.selectedVpcSelected = event.detail.id;
+    this.selectedVpcSelected = event.detail;
   }
 
   onVpcIdEntered(event) {
@@ -29511,10 +29512,10 @@ class ClusterCreateForm extends PolymerElement {
 
   sendClusterData() {
     const clusterName = this.$.clusterName.value || "";
-    let vpc = this.selectedVpcSelected;
+    let vpcId = this.selectedVpcSelected.id;
 
-    if (this.selectedVpcSelected === 'use-existing') {
-      vpc = this.vpcId;
+    if (this.selectedVpcSelected.id === 'use-existing') {
+      vpcId = this.selectedVpcSelected.vpcId;
     }
 
     const body = {
@@ -29524,7 +29525,7 @@ class ClusterCreateForm extends PolymerElement {
         cloud: {
           provider: this.selectedClusterProviderSelected,
           region: this.selectedClusterRegionSelected,
-          vpc: vpc,
+          vpc: vpcId,
           domain: "shalb.net"
         },
         provisioner: {
@@ -29536,7 +29537,7 @@ class ClusterCreateForm extends PolymerElement {
     };
     const createCluster = this.$.createCluster;
     createCluster.method = "POST";
-    createCluster.url = "http://localhost:5447/cluster";
+    createCluster.url = "/cluster";
     createCluster.body = JSON.stringify(body);
     createCluster.generateRequest();
   }
