@@ -28958,6 +28958,18 @@ class ClusterProvider extends PolymerElement {
     this.selectedProvider.regions.forEach((region, index) => {
       if (region.default) this.$.regionListbox.selected = index;
     });
+    const selectedProviderId = this.$.cloudProvider.selected;
+    let selectedProvider;
+    this.configuration.cluster.cloud.providerList.forEach(item => {
+      if (item.id === selectedProviderId) {
+        selectedProvider = item;
+        this.dispatchEvent(new CustomEvent('cluster-provider-selected', {
+          detail: item,
+          bubbles: true,
+          composed: true
+        }));
+      }
+    });
   }
 
   ready() {
@@ -28966,9 +28978,11 @@ class ClusterProvider extends PolymerElement {
   }
 
   _regionObserver(val) {
+    console.log('_regionObserver', val);
     if (val === 999) return;
+    let region = this.selectedProvider.regions[val];
     this.dispatchEvent(new CustomEvent('cluster-region-selected', {
-      detail: this.selectedRegion,
+      detail: region,
       bubbles: true,
       composed: true
     }));
@@ -29081,6 +29095,19 @@ class ProvisionerConfigurator extends PolymerElement {
     });
     this.selectedType.instanceTypeList.forEach((instanceType, index) => {
       if (instanceType.default) this.$.typeListbox.selected = index;
+    });
+    const selectedTypeId = this.$.instanceTypeList.selected;
+    let selectedType;
+    this.configuration.cluster.provisioner.type.forEach(item => {
+      if (item.id === selectedTypeId) {
+        //provisioner-selected item
+        selectedType = item;
+        this.dispatchEvent(new CustomEvent('provisioner-selected', {
+          detail: item,
+          bubbles: true,
+          composed: true
+        }));
+      }
     });
   }
 
@@ -29509,7 +29536,7 @@ class ClusterCreateForm extends PolymerElement {
     };
     const createCluster = this.$.createCluster;
     createCluster.method = "POST";
-    createCluster.url = "/cluster";
+    createCluster.url = "http://localhost:5447/cluster";
     createCluster.body = JSON.stringify(body);
     createCluster.generateRequest();
   }
