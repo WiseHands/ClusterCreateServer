@@ -29291,7 +29291,7 @@ class ComponentsSelector extends PolymerElement {
                     margin: 0.5em;
                 }
             </style>
-  <paper-checkbox id="componentsId" name="[[item.id]]" on-change="onComponentSelect">[[item.name]]</paper-checkbox>
+  <paper-checkbox id="componentsId" name="[[item.id]]" on-change="onComponentSelect" checked="[[item.default]]">[[item.name]]</paper-checkbox>
         `;
   }
 
@@ -29302,84 +29302,23 @@ class ComponentsSelector extends PolymerElement {
       bubbles: true,
       composed: true
     }));
-  } /*
-        static get properties() {
-            return {
-                configuration: {
-                  type: Object,
-                },
-                selectedState: {
-                    type: Object,
-                    observer: '_VpcStateObserver'
-                }
-            };
-        }
-    
-        static get observers() {
-            return [
-                'vpcChanged(configuration.cluster.vpc.state)'
-            ]
-        }
-    
-        vpcChanged(list) {
-            console.log('list', list);
-    
-            this.configuration.cluster.vpc.state.forEach(
-                item => {
-                    if(item.default) {
-                        this.selectedVpcId = item.id;
-                        this.selectedVpcIdText = item.vpcId;
-                        this.selectedState = item;
-                    }
-                }
-            );
-    
-        }
-    
-    
-        _VpcStateObserver() {
-            let vpcType = this.selectedState;
-            this.dispatchEvent(new CustomEvent('vpc-selected',
-                {
-                    detail: vpcType,
-                    bubbles: true,
-                    composed: true
-                }
-            ));
-        }
-    
-        vpcSelected() {
-            const selectedStateId = this.$.vpcList.selected;
-            let selectedState;
-            this.configuration.cluster.vpc.state.forEach(
-                item => {
-                    if(item.id === selectedStateId) {
-                        //provisioner-selected item
-    
-                        selectedState = item;
-                        this.dispatchEvent(new CustomEvent('vpc-selected',
-                                {
-                                    detail: item,
-                                    bubbles: true,
-                                    composed: true
-                                }
-                            ));
-                    }
-                }
-    
-            );
-    
-            this.selectedState = selectedState;
-            console.log('vpc state selected', this.selectedState);
-    
-        }
-    
-        _areStateSet(type) {
-            const areSet = !!type && type.id === "use-existing";
-            console.log('are set', areSet, type);
-            return areSet
-        }
-    */
+  }
+
+  static get observers() {
+    return ['componentsChecked(item)'];
+  }
+
+  componentsChecked(item) {
+    console.log('componentsChecked', item);
+
+    if (item.default) {
+      this.dispatchEvent(new CustomEvent('default-component-selected', {
+        detail: item,
+        bubbles: true,
+        composed: true
+      }));
+    }
+  }
 
 }
 
@@ -29569,6 +29508,7 @@ class ClusterCreateForm extends PolymerElement {
     this.addEventListener('vpc-selected', this.onVpcSelected);
     this.addEventListener('vpc-id-entered', this.onVpcIdEntered);
     this.addEventListener('component-selected', this.onClusterComponentsChecked);
+    this.addEventListener('default-component-selected', this.onDefaultClusterComponentsChecked);
 
     this._generateRequest('GET', this.url);
 
@@ -29606,6 +29546,7 @@ class ClusterCreateForm extends PolymerElement {
   }
 
   onClusterComponentsChecked(event) {
+    console.log('onClusterComponentsChecked', event.detail);
     let component = event.detail;
 
     if (component.selected) {
@@ -29621,7 +29562,26 @@ class ClusterCreateForm extends PolymerElement {
       this.selectedComponents.splice(_index, 1);
     }
 
-    console.log('onClusterComponentsChecked', event.detail);
+    this.componentsId = event.detail;
+  }
+
+  onDefaultClusterComponentsChecked(event) {
+    console.log('onDefaultClusterComponentsChecked', event.detail);
+    let component = event.detail;
+
+    if (component.selected) {
+      delete component.selected;
+      this.selectedComponents.push(component);
+    } else {
+      let _index = 0;
+      this.selectedComponents.forEach((item, index) => {
+        if (item.name === component.name) {
+          _index = index;
+        }
+      });
+      this.selectedComponents.splice(_index, 1);
+    }
+
     this.componentsId = event.detail;
   }
 
