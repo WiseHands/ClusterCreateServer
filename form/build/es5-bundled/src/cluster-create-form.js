@@ -29296,9 +29296,9 @@ class ComponentsSelector extends PolymerElement {
   }
 
   onComponentSelect() {
-    let clusterComponents = this.$.componentsId.checked;
-    this.dispatchEvent(new CustomEvent('component-id-selected', {
-      detail: clusterComponents,
+    this.item.selected = this.$.componentsId.checked;
+    this.dispatchEvent(new CustomEvent('component-selected', {
+      detail: this.item,
       bubbles: true,
       composed: true
     }));
@@ -29555,7 +29555,8 @@ class ClusterCreateForm extends PolymerElement {
       url: {
         type: String,
         value: 'src/cluster.json'
-      }
+      },
+      selectedComponents: []
     };
   }
 
@@ -29567,9 +29568,11 @@ class ClusterCreateForm extends PolymerElement {
     this.addEventListener('instance-type-selected', this.onProvisionerTypeSelected);
     this.addEventListener('vpc-selected', this.onVpcSelected);
     this.addEventListener('vpc-id-entered', this.onVpcIdEntered);
-    this.addEventListener('component-id-selected', this.onClusterComponentsChecked);
+    this.addEventListener('component-selected', this.onClusterComponentsChecked);
 
     this._generateRequest('GET', this.url);
+
+    this.selectedComponents = [];
   }
 
   onClusterRegionSelected(event) {
@@ -29603,6 +29606,21 @@ class ClusterCreateForm extends PolymerElement {
   }
 
   onClusterComponentsChecked(event) {
+    let component = event.detail;
+
+    if (component.selected) {
+      delete component.selected;
+      this.selectedComponents.push(component);
+    } else {
+      let _index = 0;
+      this.selectedComponents.forEach((item, index) => {
+        if (item.name === component.name) {
+          _index = index;
+        }
+      });
+      this.selectedComponents.splice(_index, 1);
+    }
+
     console.log('onClusterComponentsChecked', event.detail);
     this.componentsId = event.detail;
   }
@@ -29642,7 +29660,7 @@ class ClusterCreateForm extends PolymerElement {
           instanceType: this.selectedProvisionerTypeSelected
         }
       },
-      apps: []
+      apps: this.selectedComponents
     };
     const createCluster = this.$.createCluster;
     createCluster.method = "POST";
