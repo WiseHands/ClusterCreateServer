@@ -15,6 +15,7 @@ func enableCors(w *http.ResponseWriter) {
 
 func responseHandler(w http.ResponseWriter, r *http.Request) {
 	enableCors(&w)
+
 	switch r.Method {
 	case "POST":
 		reqBody, err := ioutil.ReadAll(r.Body)
