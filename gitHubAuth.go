@@ -14,8 +14,8 @@ import (
 
 func main() {
 	user := "TarasH1"
-	token := "5dc1f34ac0306dbd0224f8ce12ad07d885222935"
-	url := "https://api.github.com/repos/WiseHands/ClusterDev/contents/config.yaml"
+	token := "myToken"
+	url := "https://api.github.com/repos/WiseHands/ClusterDev/contents/config_test2.yaml"
 
 	checkIsFileCreated(user, token, url)
 }
@@ -38,6 +38,7 @@ func checkIsFileCreated(user string, token string, url string) {
 
 	if res.StatusCode != 200 {
 		createFile(user, token, url)
+		return
 	}
 
 	fmt.Printf("Body: %s\n", body)
