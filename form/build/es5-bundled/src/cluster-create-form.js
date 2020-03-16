@@ -29291,33 +29291,16 @@ class ComponentsSelector extends PolymerElement {
                     margin: 0.5em;
                 }
             </style>
-  <paper-checkbox id="componentsId" name="[[item.id]]" on-change="onComponentSelect" checked="[[item.default]]">[[item.name]]</paper-checkbox>
+  <paper-checkbox id="componentsId" name="[[item.id]]" on-change="_setSelectedState" checked="[[item.default]]">[[item.name]]</paper-checkbox>
         `;
   }
 
-  onComponentSelect() {
-    this.item.selected = this.$.componentsId.checked;
-    this.dispatchEvent(new CustomEvent('component-selected', {
-      detail: this.item,
-      bubbles: true,
-      composed: true
-    }));
-  }
-
   static get observers() {
-    return ['componentsChecked(item)'];
+    return ['_setSelectedState(item)'];
   }
 
-  componentsChecked(item) {
-    console.log('componentsChecked', item);
-
-    if (item.default) {
-      this.dispatchEvent(new CustomEvent('default-component-selected', {
-        detail: item,
-        bubbles: true,
-        composed: true
-      }));
-    }
+  _setSelectedState() {
+    this.item.selected = this.$.componentsId.checked;
   }
 
 }
@@ -29495,8 +29478,7 @@ class ClusterCreateForm extends PolymerElement {
       url: {
         type: String,
         value: 'src/cluster.json'
-      },
-      selectedComponents: []
+      }
     };
   }
 
@@ -29508,12 +29490,8 @@ class ClusterCreateForm extends PolymerElement {
     this.addEventListener('instance-type-selected', this.onProvisionerTypeSelected);
     this.addEventListener('vpc-selected', this.onVpcSelected);
     this.addEventListener('vpc-id-entered', this.onVpcIdEntered);
-    this.addEventListener('component-selected', this.onClusterComponentsChecked);
-    this.addEventListener('default-component-selected', this.onDefaultClusterComponentsChecked);
 
     this._generateRequest('GET', this.url);
-
-    this.selectedComponents = [];
   }
 
   onClusterRegionSelected(event) {
@@ -29546,46 +29524,6 @@ class ClusterCreateForm extends PolymerElement {
     this.vpcId = event.detail;
   }
 
-  onClusterComponentsChecked(event) {
-    console.log('onClusterComponentsChecked', event.detail);
-    let component = event.detail;
-
-    if (component.selected) {
-      delete component.selected;
-      this.selectedComponents.push(component);
-    } else {
-      let _index = 0;
-      this.selectedComponents.forEach((item, index) => {
-        if (item.name === component.name) {
-          _index = index;
-        }
-      });
-      this.selectedComponents.splice(_index, 1);
-    }
-
-    this.componentsId = event.detail;
-  }
-
-  onDefaultClusterComponentsChecked(event) {
-    console.log('onDefaultClusterComponentsChecked', event.detail);
-    let component = event.detail;
-
-    if (component.selected) {
-      delete component.selected;
-      this.selectedComponents.push(component);
-    } else {
-      let _index = 0;
-      this.selectedComponents.forEach((item, index) => {
-        if (item.name === component.name) {
-          _index = index;
-        }
-      });
-      this.selectedComponents.splice(_index, 1);
-    }
-
-    this.componentsId = event.detail;
-  }
-
   _generateRequest(method, url) {
     const ajax = this.$.ajax;
     ajax.method = method;
@@ -29606,6 +29544,11 @@ class ClusterCreateForm extends PolymerElement {
       vpcId = this.selectedVpcSelected.vpcId;
     }
 
+    const checkedComponents = [];
+    const components = this.shadowRoot.querySelectorAll('components-selector');
+    components.forEach(component => {
+      if (component.item.selected) checkedComponents.push(component.item);
+    });
     const body = {
       cluster: {
         name: clusterName,
@@ -29621,11 +29564,11 @@ class ClusterCreateForm extends PolymerElement {
           instanceType: this.selectedProvisionerTypeSelected
         }
       },
-      apps: this.selectedComponents
+      apps: checkedComponents
     };
     const createCluster = this.$.createCluster;
     createCluster.method = "POST";
-    createCluster.url = "/cluster";
+    createCluster.url = "http://127.0.0.1:5447/cluster";
     createCluster.body = JSON.stringify(body);
     createCluster.generateRequest();
   }
