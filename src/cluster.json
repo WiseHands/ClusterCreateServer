@@ -99,15 +99,18 @@
       "components": [
         {
           "id": "ingresscontroller",
-          "name": "Ingress Controller"
+          "name": "Ingress Controller",
+          "default": true
         },
         {
           "id": "kubernetesdashboard",
-          "name": "Kubernetes Dashboard"
+          "name": "Kubernetes Dashboard",
+          "default": true
         },
         {
           "id": "loggingwithelk",
-          "name": "Logging with ELK"
+          "name": "Logging with ELK",
+          "default": true
         },
         {
           "id": "prometheus-grafana",
