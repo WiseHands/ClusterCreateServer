@@ -37,7 +37,7 @@ func responseHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println(string(y))
 
 		user := "TarasH1"
-		token := "1a885ce612235b43e5c088107f2229d76c50d87b"
+		token := "myToken"
 		url := "https://api.github.com/repos/WiseHands/ClusterDev/contents/config.yaml"
 
 		createOrUpdateClusterConfigFile(user, token, url, string(y))
