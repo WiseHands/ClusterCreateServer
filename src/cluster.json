@@ -99,8 +99,7 @@
       "components": [
         {
           "id": "ingresscontroller",
-          "name": "Ingress Controller",
-          "default": true
+          "name": "Ingress Controller"
         },
         {
           "id": "kubernetesdashboard",
@@ -108,8 +107,7 @@
         },
         {
           "id": "loggingwithelk",
-          "name": "Logging with ELK",
-          "default": true
+          "name": "Logging with ELK"
         },
         {
           "id": "prometheus-grafana",
@@ -121,8 +119,7 @@
         },
         {
           "id": "letsencrypt",
-          "name": "Cert-Manager LetsEncrypt",
-          "default": true
+          "name": "Cert-Manager LetsEncrypt"
         }
       ]
     },
