@@ -12,15 +12,7 @@ import (
 	"os"
 )
 
-func main() {
-	user := "TarasH1"
-	token := "myToken"
-	url := "https://api.github.com/repos/WiseHands/ClusterDev/contents/config_test2.yaml"
-
-	checkIsFileCreated(user, token, url)
-}
-
-func checkIsFileCreated(user string, token string, url string) {
+func createOrUpdateClusterConfigFile(user string, token string, url string, config string) {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		log.Fatal(err)
@@ -37,7 +29,7 @@ func checkIsFileCreated(user string, token string, url string) {
 	}
 
 	if res.StatusCode != 200 {
-		createFile(user, token, url)
+		createFile(user, token, url, config)
 		return
 	}
 
@@ -70,12 +62,11 @@ func checkIsFileCreated(user string, token string, url string) {
 	}
 	log.Println("JSON raw response from server: " + string(js))
 
-	updateFile(user, token, url, shaParam)
+	updateFile(user, token, url, shaParam, config)
 }
 
-func createFile(user string, token string, url string) {
-	data := "some data"
-	encoded := base64.StdEncoding.EncodeToString([]byte(data))
+func createFile(user string, token string, url string, config string) {
+	encoded := base64.StdEncoding.EncodeToString([]byte(config))
 
 	type Committer struct {
 		Name  string `json:"name"`
@@ -118,9 +109,8 @@ func createFile(user string, token string, url string) {
 	io.Copy(os.Stdout, resp.Body)
 }
 
-func updateFile(user string, token string, url string, sha string) {
-	data := "somekljkl data"
-	encoded := base64.StdEncoding.EncodeToString([]byte(data))
+func updateFile(user string, token string, url string, sha string, config string) {
+	encoded := base64.StdEncoding.EncodeToString([]byte(config))
 
 	type Committer struct {
 		Name  string `json:"name"`
